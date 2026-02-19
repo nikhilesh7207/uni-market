@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+
+:root {
+    --font-sans: 'Inter', system-ui, sans-serif;
+    /* 
+     * THEME 1: Sage Green & Cream (Default)
+     */
+
+    --color-bg-start: #FDFBF7;
+    --color-bg-end: #E2E8E4;
+    --color-card-bg: rgba(253, 251, 247, 0.6);
+    --color-card-border: rgba(124, 144, 130, 0.4);
+    --color-text-main: #2F3E33;
+    --color-text-dim: #5C6B5F;
+    --color-accent: #7C9082;
+    --color-accent-hover: #5E7163;
+    --color-accent-text: #FDFBF7;
+    --color-input-bg: rgba(255, 255, 255, 0.5);
+    --color-input-border: #A3BCA9;
+    --color-shadow: rgba(124, 144, 130, 0.2);
+    --color-blob-1: #A3BCA9;
+    --color-blob-2: #D6CFAE;
+}
+
+/* 
+ * THEME 2: Futuristic Space Blue (Replaces Teal)
+ */
+.theme-teal {
+    --color-bg-start: #0F2027;
+    /* Deep Space Blue */
+    --color-bg-end: #203A43;
+    /* Mid Blue */
+    --color-bg-accent: #2C5364;
+    /* Lighter Blue */
+    --color-card-bg: rgba(15, 32, 39, 0.7);
+    --color-card-border: rgba(0, 240, 255, 0.2);
+    --color-text-main: #FFFFFF;
+    --color-text-dim: #A0C4D8;
+    --color-accent: #00D2FF;
+    /* Cyan Neon */
+    --color-accent-hover: #3A7BD5;
+    --color-accent-text: #0F2027;
+    --color-input-bg: rgba(255, 255, 255, 0.05);
+    --color-input-border: #3A7BD5;
+    --color-shadow: rgba(0, 0, 0, 0.6);
+    --color-blob-1: #00D2FF;
+    --color-blob-2: #3A7BD5;
+}
+
+.theme-beige {
+    /* 
+     * THEME 3: Beige & Light Yellow
+     */
+    --color-bg-start: #FFFBE6;
+    --color-bg-end: #FEFAE0;
+    --color-card-bg: rgba(255, 255, 255, 0.6);
+    --color-card-border: rgba(240, 180, 41, 0.3);
+    --color-text-main: #5F4B32;
+    --color-text-dim: #8C7051;
+    --color-accent: #F0B429;
+    /* Golden Yellow */
+    --color-accent-hover: #D69E1E;
+    --color-accent-text: #3E2C12;
+    --color-input-bg: rgba(255, 255, 255, 0.6);
+    --color-input-border: #F0B429;
+    --color-shadow: rgba(240, 180, 41, 0.2);
+    --color-blob-1: #F0B429;
+    --color-blob-2: #FFE380;
+}
+
+body {
+    background: linear-gradient(135deg, var(--color-bg-start), var(--color-bg-end));
+    color: var(--color-text-main);
+    font-family: var(--font-sans);
+    transition: background 0.8s ease, color 0.5s ease;
+    min-height: 100vh;
+}
+
+/* Utilities */
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

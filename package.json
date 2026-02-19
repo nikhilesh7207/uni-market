@@ -1,0 +1,14 @@
+{
+    "name": "exp-root",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "start": "concurrently \"npm run start --prefix backend\" \"npm run dev --prefix frontend\"",
+        "dev": "npm run start",
+        "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "devDependencies": {
+        "concurrently": "^9.1.2"
+    }
+}
