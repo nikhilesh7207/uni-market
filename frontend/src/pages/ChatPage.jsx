@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar';
 import { MessageCircle, User, Trash2, MoreVertical } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { io } from 'socket.io-client';
+import { API_BASE_URL, SOCKET_BASE_URL } from '../config';
 
 const ChatPage = () => {
     const { user } = useAuth();
@@ -31,7 +32,28 @@ const ChatPage = () => {
     useEffect(() => {
         if (!user) return;
 
-        const newSocket = io(SOCKET_BASE_URL);
+        const token = localStorage.getItem('token');
+        const newSocket = io(SOCKET_BASE_URL, {
+            transports: ["websocket", "polling"],
+            withCredentials: true,
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 2000,
+            auth: { token }
+        });
+
+        newSocket.on("connect", () => {
+            console.log("Socket connected:", newSocket.id);
+        });
+
+        newSocket.on("disconnect", () => {
+            console.log("Socket disconnected");
+        });
+
+        newSocket.on("connect_error", (err) => {
+            console.error("Socket connection error:", err.message);
+        });
+
         setSocket(newSocket);
         newSocket.emit('join_user', user._id || user.id); // New event to join user-specific room if needed, or just rely on global if simple
 
@@ -84,7 +106,7 @@ const ChatPage = () => {
             });
         });
 
-        return () => newSocket.close();
+        return () => newSocket.disconnect();
     }, [user, selectedChatId]); // Re-run socket listener if selectedChatId changes? 
     // Ideally we don't want to re-connect socket constantly. 
     // Better to use a ref for selectedChatId inside the socket callback or filtered logic.

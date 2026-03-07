@@ -1,15 +1,45 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { GraduationCap, LogOut, PlusCircle, User, MessageCircle, Shield } from 'lucide-react';
+import { io } from 'socket.io-client';
+import { SOCKET_BASE_URL } from '../config';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const [unreadCount, setUnreadCount] = useState(0);
 
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
+
+    useEffect(() => {
+        if (!user) return;
+
+        // Reset badge on chat page open
+        if (location.pathname === '/chat') {
+            setUnreadCount(0);
+        }
+
+        const token = localStorage.getItem('token');
+        const newSocket = io(SOCKET_BASE_URL, {
+            transports: ["websocket", "polling"],
+            withCredentials: true,
+            auth: { token }
+        });
+
+        newSocket.on('receive_message', () => {
+            // Only increment when not on the chat page to act like a background notification
+            if (location.pathname !== '/chat') {
+                setUnreadCount(prev => prev + 1);
+            }
+        });
+
+        return () => newSocket.disconnect();
+    }, [user, location.pathname]);
 
     return (
         <nav className="bg-blue-600 border-b border-blue-500 shadow-md sticky top-0 z-50">
@@ -29,10 +59,15 @@ const Navbar = () => {
                         <div className="flex items-center gap-4">
                             <Link
                                 to="/chat"
-                                className="p-2 text-blue-100 hover:text-white hover:bg-white/10 rounded-full transition"
+                                className="relative p-2 text-blue-100 hover:text-white hover:bg-white/10 rounded-full transition"
                                 title="Messages"
                             >
                                 <MessageCircle size={22} />
+                                {unreadCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-blue-600">
+                                        {unreadCount}
+                                    </span>
+                                )}
                             </Link>
 
                             {user.role === 'admin' && (

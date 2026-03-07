@@ -14,20 +14,46 @@ export const AuthProvider = ({ children }) => {
         const token = localStorage.getItem('token');
         if (token) {
             axios.defaults.headers.common['x-auth-token'] = token;
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             fetchUser();
         } else {
             setLoading(false);
         }
+
+        // Global axios interceptor for 401 Unauthorized
+        const interceptor = axios.interceptors.response.use(
+            response => response,
+            error => {
+                if (error.response && error.response.status === 401) {
+                    logout();
+                }
+                return Promise.reject(error);
+            }
+        );
+
+        return () => {
+            axios.interceptors.response.eject(interceptor);
+        };
     }, []);
 
     const fetchUser = async () => {
         try {
-            const res = await axios.get(`${API_BASE_URL}/auth/me`);
-            setUser(res.data);
-        } catch (err) {
-            console.error(err);
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${API_BASE_URL}/api/auth/me`, {
+                withCredentials: true,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            // The route returns the user object directly, but we will accept res.data inside the try block
+            // It could be `{ user: ... }` if updated, but currently it's just user
+            setUser(res.data.user || res.data);
+        } catch (error) {
+            console.error("Auth error:", error.response?.data || error.message);
+            setUser(null);
             localStorage.removeItem('token');
             delete axios.defaults.headers.common['x-auth-token'];
+            delete axios.defaults.headers.common['Authorization'];
         } finally {
             setLoading(false);
         }
@@ -35,9 +61,10 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const res = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
+            const res = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
             localStorage.setItem('token', res.data.token);
             axios.defaults.headers.common['x-auth-token'] = res.data.token;
+            axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
             await fetchUser();
             return { success: true };
         } catch (err) {
@@ -47,9 +74,10 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (name, email, password, role) => {
         try {
-            const res = await axios.post(`${API_BASE_URL}/auth/register`, { name, email, password, role });
+            const res = await axios.post(`${API_BASE_URL}/api/auth/register`, { name, email, password, role });
             localStorage.setItem('token', res.data.token);
             axios.defaults.headers.common['x-auth-token'] = res.data.token;
+            axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
             await fetchUser();
             return { success: true };
         } catch (err) {
@@ -62,6 +90,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         delete axios.defaults.headers.common['x-auth-token'];
+        delete axios.defaults.headers.common['Authorization'];
     };
 
     return (

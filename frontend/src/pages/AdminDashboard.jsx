@@ -182,22 +182,20 @@ const AdminDashboard = () => {
                                                         {report.chat?.participants?.map(p => p.name).join(', ') || 'N/A'}
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
-                                                        <td className="px-6 py-4 text-right">
-                                                            <button
-                                                                onClick={() => {
-                                                                    console.log("View Chat Clicked. Report Chat Obj:", report.chat);
-                                                                    console.log("Passing Chat ID:", report.chat?._id);
-                                                                    if (report.chat?._id) {
-                                                                        setSelectedChatId(report.chat._id);
-                                                                    } else {
-                                                                        alert("Chat data not found for this report.");
-                                                                    }
-                                                                }}
-                                                                className="text-blue-600 hover:text-blue-800 font-medium text-sm mr-3"
-                                                            >
-                                                                View Chat
-                                                            </button>
-                                                        </td>
+                                                        <button
+                                                            onClick={() => {
+                                                                console.log("View Chat Clicked. Report Chat Obj:", report.chat);
+                                                                console.log("Passing Chat ID:", report.chat?._id);
+                                                                if (report.chat?._id) {
+                                                                    setSelectedChatId(report.chat._id);
+                                                                } else {
+                                                                    alert("Chat data not found for this report.");
+                                                                }
+                                                            }}
+                                                            className="text-blue-600 hover:text-blue-800 font-medium text-sm mr-3"
+                                                        >
+                                                            View Chat
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))}

@@ -53,6 +53,7 @@ router.get('/:id', async (req, res) => {
 // @access  Private
 router.post('/', [auth, upload.single('image')], async (req, res) => {
     const { name, description, category, price } = req.body;
+
     const imageUrl = req.file ? `${process.env.SERVER_BASE_URL || 'http://localhost:5000'}/uploads/${req.file.filename}` : '';
     const images = imageUrl ? [imageUrl] : [];
 
@@ -67,10 +68,10 @@ router.post('/', [auth, upload.single('image')], async (req, res) => {
         });
 
         const product = await newProduct.save();
-        res.json(product);
+        res.status(201).json({ message: "Product saved successfully", product });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error("Backend product upload error:", err.message);
+        res.status(500).json({ message: "Server Error", error: err.message });
     }
 });
 
@@ -129,10 +130,21 @@ router.put('/:id', [auth, upload.single('image')], async (req, res) => {
     if (price) productFields.price = price;
 
     // Handle Image Update
+    let updatedImages = [];
+    if (req.body.existingImages) {
+        if (Array.isArray(req.body.existingImages)) {
+            updatedImages = [...req.body.existingImages];
+        } else {
+            updatedImages = [req.body.existingImages];
+        }
+    }
+
     if (req.file) {
         const imageUrl = `${process.env.SERVER_BASE_URL || 'http://localhost:5000'}/uploads/${req.file.filename}`;
-        productFields.images = [imageUrl]; // Replace existing images for simplicity
+        updatedImages = [...updatedImages, imageUrl];
     }
+
+    productFields.images = updatedImages;
 
     try {
         let product = await Product.findById(req.params.id);

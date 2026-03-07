@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Send, AlertTriangle, MoreVertical, ArrowLeft, Trash2, User, X, Reply, Home, UserX } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { API_BASE_URL, SOCKET_BASE_URL } from '../config';
 
 const ChatBox = ({ productId, sellerId, existingChatId }) => {
@@ -27,7 +28,27 @@ const ChatBox = ({ productId, sellerId, existingChatId }) => {
         if (!user) return;
         if (!existingChatId && (!productId || !sellerId)) return;
 
-        const newSocket = io(SOCKET_BASE_URL);
+        const token = localStorage.getItem('token');
+        const newSocket = io(SOCKET_BASE_URL, {
+            transports: ["websocket", "polling"],
+            withCredentials: true,
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 2000,
+            auth: { token }
+        });
+
+        newSocket.on("connect", () => {
+            console.log("Socket connected:", newSocket.id);
+        });
+
+        newSocket.on("disconnect", () => {
+            console.log("Socket disconnected");
+        });
+
+        newSocket.on("connect_error", (err) => {
+            console.error("Socket connection error:", err.message);
+        });
         setSocket(newSocket);
 
         const initChat = async () => {
@@ -162,12 +183,24 @@ const ChatBox = ({ productId, sellerId, existingChatId }) => {
     };
 
     const handleReport = async () => {
+        if (!chatId || messages.length === 0) {
+            toast.error("Cannot report an empty chat.");
+            return;
+        }
+
         try {
-            await axios.post(`${API_BASE_URL}/api/chat/${chatId}/report`);
-            alert('Report submitted successfully.');
+            await axios.post(`${API_BASE_URL}/api/reports/chat`, {
+                reporterId: user._id || user.id,
+                reportedUserId: otherUser._id,
+                productId: product ? product._id : null,
+                chatMessages: messages
+            }, {
+                withCredentials: true
+            });
+            toast.success("Conversation reported successfully");
             setShowReportPopup(false);
-        } catch (err) {
-            alert('Failed to report chat');
+        } catch (error) {
+            console.error("Report conversation error:", error.response?.data || error.message);
         }
     };
 
@@ -268,7 +301,7 @@ const ChatBox = ({ productId, sellerId, existingChatId }) => {
                 </div>
             )}
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-white scroll-smooth" onClick={() => setShowMenu(false)}>
+            <div className="flex flex-col gap-3 p-4 overflow-y-auto h-full bg-gray-50 scroll-smooth" onClick={() => setShowMenu(false)}>
                 {messages.map((msg, index) => {
                     const senderId = msg.sender?._id || msg.sender;
                     const currentUserId = user._id || user.id;
@@ -304,20 +337,23 @@ const ChatBox = ({ productId, sellerId, existingChatId }) => {
                                 </div>
                             )}
 
-                            <div className={`relative max-w-[70%]`}>
+                            <div className="relative max-w-xs">
                                 {msg.replyTo && (
                                     <div
                                         onClick={() => scrollToMessage(msg.replyTo.messageId)}
-                                        className={`mb-1 p-2 rounded-lg text-xs cursor-pointer border-l-2 bg-opacity-10 ${isMe ? 'bg-white border-white text-white/90' : 'bg-gray-200 border-gray-400 text-gray-500'}`}
+                                        className={`mb-1 p-2 rounded-lg text-xs cursor-pointer border-l-2 bg-opacity-10 ${isMe ? 'bg-white border-white text-white/90 ml-auto' : 'bg-gray-200 border-gray-400 text-gray-500'}`}
                                     >
                                         <span className="font-bold block mb-0.5">{msg.replyTo.senderName}</span>
                                         <span className="line-clamp-1">{msg.replyTo.content}</span>
                                     </div>
                                 )}
 
-                                <div className={`px-4 py-2.5 text-sm shadow-sm transition-all ${isMe ? 'bg-primary text-white rounded-2xl rounded-tr-sm' : 'bg-gray-100 text-gray-800 rounded-2xl rounded-tl-sm'}`}>
-                                    <p className="leading-relaxed break-words">{msg.content}</p>
-                                    <div className={`flex items-center gap-2 mt-1 ${isMe ? 'justify-end text-primary/20' : 'justify-start text-gray-400'}`}>
+                                <div className={`px-4 py-2 rounded-2xl shadow-sm transition-all ${isMe
+                                    ? "bg-blue-500 text-white ml-auto"
+                                    : "bg-gray-200 text-black"
+                                    }`}>
+                                    <p className="leading-relaxed break-words text-sm">{msg.content}</p>
+                                    <div className={`flex flex-row items-center gap-2 mt-1 ${isMe ? 'justify-end text-blue-200' : 'justify-start text-gray-500'}`}>
                                         <span className="text-[10px]">
                                             {new Date(msg.time || msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
@@ -338,11 +374,11 @@ const ChatBox = ({ productId, sellerId, existingChatId }) => {
                     </div>
                 </div>
             ) : (
-                <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-100">
+                <form onSubmit={handleSendMessage} className="flex flex-col bg-white">
                     {replyingTo && (
-                        <div className="flex items-center justify-between bg-gray-50 p-2 px-4 rounded-t-xl border-b border-gray-100 mb-2 border-l-4 border-primary">
+                        <div className="flex items-center justify-between bg-gray-50 p-2 px-4 border-t border-b border-gray-100 border-l-4 border-blue-500">
                             <div className="text-sm">
-                                <p className="text-primary font-bold text-xs">Replying to {replyingTo.sender.name || 'User'}</p>
+                                <p className="text-blue-500 font-bold text-xs">Replying to {replyingTo.sender.name || 'User'}</p>
                                 <p className="text-gray-500 truncate max-w-[200px]">{replyingTo.content}</p>
                             </div>
                             <button type="button" onClick={() => setReplyingTo(null)} className="text-gray-400 hover:text-gray-600">
@@ -351,20 +387,20 @@ const ChatBox = ({ productId, sellerId, existingChatId }) => {
                         </div>
                     )}
 
-                    <div className="relative flex items-center gap-2">
+                    <div className="flex items-center border-t p-3 bg-white">
                         <input
                             type="text"
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
-                            placeholder={replyingTo ? "Type your reply..." : "Type a message..."}
-                            className="w-full bg-gray-100 text-gray-800 rounded-full px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all pr-12 font-medium"
+                            placeholder={replyingTo ? "Type your reply..." : "Message..."}
+                            className="flex-1 border rounded-full px-4 py-2 outline-none"
                         />
                         <button
                             type="submit"
-                            className="absolute right-2 p-2.5 bg-primary text-white rounded-full hover:bg-primary-hover transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
                             disabled={!newMessage.trim()}
+                            className="ml-3 bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
                         >
-                            <Send size={18} />
+                            Send
                         </button>
                     </div>
                 </form>

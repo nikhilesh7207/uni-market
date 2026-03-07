@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
-import { Upload, DollarSign, Tag, Type, X } from 'lucide-react';
+import { Upload, DollarSign, Tag, Type, X, ArrowLeft, Loader2, FileText, ImageIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 
 const SellProduct = () => {
     const navigate = useNavigate();
@@ -59,13 +60,14 @@ const SellProduct = () => {
         data.append('price', formData.price);
         data.append('category', formData.category);
 
-        formData.images.forEach((image) => {
-            if (typeof image === 'string') {
-                data.append('existingImages', image); // Handle existing images in edit mode
+        if (formData.images && formData.images.length > 0) {
+            const firstImage = formData.images[0];
+            if (typeof firstImage === 'string') {
+                data.append('existingImages', firstImage); // Handle existing images in edit mode
             } else {
-                data.append('images', image);
+                data.append('image', firstImage);
             }
-        });
+        }
 
         const token = localStorage.getItem('token');
 
@@ -79,7 +81,7 @@ const SellProduct = () => {
                 });
                 alert('Product Updated Successfully!');
             } else {
-                await axios.post(`${API_BASE_URL}/api/products/add`, data, {
+                await axios.post(`${API_BASE_URL}/api/products`, data, {
                     headers: {
                         'x-auth-token': token,
                         'Content-Type': 'multipart/form-data'
@@ -88,9 +90,9 @@ const SellProduct = () => {
                 alert('Product Listed Successfully!');
             }
             navigate('/');
-        } catch (err) {
-            console.error(err);
-            alert('Failed to save product');
+        } catch (error) {
+            console.error("Product upload error:", error.response?.data || error.message);
+            alert(error.response?.data?.message || "Failed to save product");
         } finally {
             setUploading(false);
         }
@@ -101,7 +103,21 @@ const SellProduct = () => {
             <Navbar />
             <div className="container mx-auto px-4 py-8">
                 <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className="p-6 md:p-8 bg-white border-b border-gray-100">
+                    <div className="p-6 md:p-8 bg-white border-b border-gray-100 relative">
+                        {/* Back to Products Button */}
+                        <button
+                            onClick={() => {
+                                if (user && user.role === 'admin') {
+                                    navigate('/admin/products');
+                                } else {
+                                    navigate(isEditMode ? `/profile/${user._id}` : '/');
+                                }
+                            }}
+                            className="mb-4 inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700 transition-colors duration-200 text-sm font-medium"
+                        >
+                            <ArrowLeft size={16} /> Back to Products
+                        </button>
+
                         <h2 className="text-2xl font-bold text-gray-900">
                             {isEditMode ? 'Edit Product' : 'List a New Product'}
                         </h2>
@@ -216,7 +232,7 @@ const SellProduct = () => {
                         <button
                             type="submit"
                             disabled={uploading}
-                            className="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 hover:bg-primary/90 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className={`w-full text-white font-bold py-4 rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-blue-600 shadow-blue-200`}
                         >
                             {uploading ? (
                                 <>

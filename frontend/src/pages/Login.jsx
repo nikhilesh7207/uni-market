@@ -19,11 +19,15 @@ const Login = () => {
         setError('');
 
         try {
-            await login(email, password);
-            navigate('/');
+            const res = await login(email, password);
+            if (res.success) {
+                navigate('/');
+            } else {
+                setError(res.msg || 'Invalid credentials. Please try again.');
+            }
         } catch (err) {
             console.error("Login Error:", err);
-            setError(err.response?.data?.message || 'Invalid credentials');
+            setError('Something went wrong. Please try again.');
         } finally {
             setIsLoading(false);
         }

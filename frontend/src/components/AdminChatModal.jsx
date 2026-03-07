@@ -1,176 +1,136 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { X, Trash2, UserX } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import toast from 'react-hot-toast';
+import { MessageSquare, Trash2, X, ShieldAlert } from 'lucide-react';
+import { format } from 'date-fns';
 
 const AdminChatModal = ({ chatId, onClose }) => {
     const [chat, setChat] = useState(null);
     const [loading, setLoading] = useState(true);
-    const scrollRef = useRef(null);
+    const scrollRef = useRef();
 
-    // Fetch Chat Data
-    useEffect(() => {
-        const fetchChat = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const res = await axios.get(`${API_BASE_URL} /api/admin / chat / ${chatId}/full`, {
-                    headers: { 'x-auth-token': token }
-                });
-                setChat(res.data);
-                setLoading(false);
-            } catch (err) {
-                console.error("Failed to fetch chat", err);
-                alert("Failed to load chat history.");
-                onClose();
-            }
-        };
-        if (chatId) fetchChat();
-    }, [chatId]);
-
-    // Scroll to bottom on load
-    useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
-    }, [chat]);
-
-    // Delete Message
-    const handleDeleteMessage = async (messageId) => {
-        if (!window.confirm("Permanently delete this message?")) return;
+    const fetchChat = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`${API_BASE_URL}/api/admin/chat/${chatId}/message/${messageId}`, {
+            const res = await axios.get(`${API_BASE_URL}/api/admin/chat/${chatId}`, {
                 headers: { 'x-auth-token': token }
             });
-            // Remove from local state immediately
-            setChat(prev => ({
-                ...prev,
-                messages: prev.messages.filter(m => m._id !== messageId)
-            }));
+            setChat(res.data);
+            setTimeout(() => {
+                if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            }, 100);
         } catch (err) {
-            console.error("Failed to delete message", err);
-            alert("Failed to delete message");
+            console.error("Failed to load chat details", err);
+            toast.error("Failed to load full chat history");
+        } finally {
+            setLoading(false);
         }
     };
 
-    // Block User
-    const handleBlockUser = async (userId, name) => {
-        if (!window.confirm(`Are you sure you want to block/unblock ${name}?`)) return;
+    useEffect(() => {
+        if (chatId) fetchChat();
+    }, [chatId]);
+
+    const deleteMessage = async (msgId) => {
+        if (!window.confirm("Delete this message?")) return;
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post(`${API_BASE_URL}/api/admin/block/${userId}`, {}, {
+            await axios.delete(`${API_BASE_URL}/api/admin/chat/${chatId}/message/${msgId}`, {
                 headers: { 'x-auth-token': token }
             });
-            alert(res.data.msg);
+            toast.success("Message deleted");
+            setChat({ ...chat, messages: chat.messages.filter(m => m._id !== msgId) });
         } catch (err) {
-            console.error("Failed to block user", err);
-            alert("Error updating user status");
+            console.error("Failed to delete message", err);
+            toast.error("Failed to delete message");
         }
     };
 
     if (!chatId) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col h-[85vh] overflow-hidden border border-gray-100">
-
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col h-[85vh] border outline-none border-gray-100 dark:border-slate-700">
                 {/* Header */}
-                <div className="p-4 border-b border-gray-100 bg-white flex justify-between items-center shadow-sm z-10">
+                <div className="flex justify-between items-center p-4 sm:p-6 border-b border-gray-100 dark:border-slate-700">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-red-100 rounded-lg text-red-600">
+                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center">
                             <ShieldAlert size={20} />
                         </div>
                         <div>
-                            <h3 className="font-bold text-gray-900">Chat Investigation</h3>
-                            <p className="text-xs text-gray-500">ID: {chatId}</p>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Chat Investigation</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                Participants: {chat?.participants?.map(p => p?.name).filter(Boolean).join(', ')}
+                            </p>
                         </div>
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-700"
-                    >
-                        <X size={20} />
+                    <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                        <X size={24} />
                     </button>
                 </div>
 
-                {/* Participants Info Bar */}
-                {chat && (
-                    <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex gap-4 overflow-x-auto">
-                        {chat.participants.map(p => (
-                            <div key={p._id} className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-gray-200 shadow-sm shrink-0">
-                                <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
-                                    {p.name.charAt(0)}
-                                </div>
-                                <span className="text-sm font-medium text-gray-700">{p.name}</span>
-                                <button
-                                    onClick={() => handleBlockUser(p._id, p.name)}
-                                    className="ml-1 p-1 hover:bg-red-50 text-gray-400 hover:text-red-600 rounded-full transition"
-                                    title={`Block ${p.name}`}
-                                >
-                                    <Ban size={14} />
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* Chat Area */}
+                {/* Messages Body */}
                 <div
-                    className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 relative"
                     ref={scrollRef}
+                    className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50 dark:bg-slate-900/50 custom-scrollbar"
                 >
                     {loading ? (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-500"></div>
+                        <div className="flex justify-center items-center h-full">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                         </div>
-                    ) : chat?.messages.length === 0 ? (
-                        <div className="text-center py-20 text-gray-400">
-                            <MessageSquare size={48} className="mx-auto mb-3 opacity-20" />
-                            <p>No messages found in this history.</p>
-                        </div>
-                    ) : (
-                        chat?.messages.map((msg, index) => {
-                            const isFirstParticipant = msg.sender?._id === chat.participants[0]?._id;
-                            const senderName = msg.sender?.name || 'Unknown User';
-
+                    ) : chat?.messages?.length > 0 ? (
+                        chat.messages.map((msg, idx) => {
+                            const isFirstChild = idx === 0 || chat.messages[idx - 1].sender?._id !== msg.sender?._id;
                             return (
-                                <div
-                                    key={msg._id}
-                                    className={`flex flex-col ${isFirstParticipant ? 'items-start' : 'items-end'} group`}
-                                >
-                                    <span className="text-[10px] text-gray-400 mb-1 px-1">
-                                        {senderName} • {new Date(msg.timestamp).toLocaleString()}
-                                    </span>
+                                <div key={msg._id} className={`flex items-start gap-3 group translate-z-0 ${isFirstChild ? 'mt-6' : 'mt-1'}`}>
+                                    {isFirstChild ? (
+                                        msg.sender?.profilePic ? (
+                                            <img src={msg.sender.profilePic} className="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-1" alt={msg.sender.name} />
+                                        ) : (
+                                            <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs flex-shrink-0 mt-1">
+                                                {msg.sender?.name?.charAt(0) || '?'}
+                                            </div>
+                                        )
+                                    ) : (
+                                        <div className="w-8 flex-shrink-0"></div>
+                                    )}
 
-                                    <div className="relative max-w-[80%]">
-                                        <div
-                                            className={`px-4 py-3 rounded-2xl shadow-sm text-sm whitespace-pre-wrap break-words border relative z-10 ${isFirstParticipant
-                                                ? 'bg-white border-gray-200 text-gray-800 rounded-tl-none'
-                                                : 'bg-blue-50 border-blue-100 text-gray-800 rounded-tr-none'
-                                                }`}
-                                        >
-                                            {msg.content}
+                                    <div className="flex-1 min-w-0">
+                                        {isFirstChild && (
+                                            <div className="flex items-baseline gap-2 mb-1">
+                                                <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                    {msg.sender?.name || 'Unknown User'}
+                                                </span>
+                                                <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                                                    {format(new Date(msg.createdAt), 'MMM dd, h:mm a')}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 px-4 py-2.5 rounded-2xl rounded-tl-none inline-block max-w-[85%] shadow-sm">
+                                                <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">
+                                                    {msg.content}
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={() => deleteMessage(msg._id)}
+                                                className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all focus:opacity-100 focus:outline-none"
+                                                title="Delete specific message"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
                                         </div>
-
-                                        {/* Admin Actions (Delete) */}
-                                        <button
-                                            onClick={() => handleDeleteMessage(msg._id)}
-                                            className={`absolute top-1/2 -translate-y-1/2 p-2 bg-white shadow-md rounded-full border border-gray-100 text-red-500 opacity-0 group-hover:opacity-100 transition-all duration-200 z-0 hover:bg-red-50 ${isFirstParticipant ? '-right-10' : '-left-10'
-                                                }`}
-                                            title="Delete Message"
-                                        >
-                                            <Trash2 size={14} />
-                                        </button>
                                     </div>
                                 </div>
                             );
                         })
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                            <MessageSquare size={48} className="mb-4 opacity-20" />
+                            <p>No messages found in this chat.</p>
+                        </div>
                     )}
-                </div>
-
-                {/* Footer / Status */}
-                <div className="p-3 bg-white border-t border-gray-100 text-center text-xs text-gray-400">
-                    Admin View • Read-Only Mode
                 </div>
             </div>
         </div>
@@ -178,4 +138,3 @@ const AdminChatModal = ({ chatId, onClose }) => {
 };
 
 export default AdminChatModal;
-

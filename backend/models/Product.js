@@ -18,6 +18,10 @@ const ProductSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    stock: {
+        type: Number,
+        default: 1
+    },
     images: [{
         type: String // URL to image
     }],

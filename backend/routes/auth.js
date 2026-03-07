@@ -35,7 +35,9 @@ const upload = multer({
 // @desc    Register user
 // @access  Public
 router.post('/register', async (req, res) => {
-    const { name, email, password, role } = req.body;
+    console.log('[REGISTER] req.body:', req.body);
+    // Ignore any 'role' provided in the request body to prevent privilege escalation
+    const { name, email, password } = req.body;
 
     try {
         // Check if user exists
@@ -44,12 +46,12 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ msg: 'User already exists' });
         }
 
-        // Create user
+        // Create user with explicit default role
         user = new User({
             name,
             email,
             password,
-            role: role || 'student'
+            role: 'student' // Hardcode to prevent role injection vulnerability
         });
 
         // Password hashing handled in User model pre-save
@@ -88,12 +90,14 @@ router.post('/register', async (req, res) => {
 // @desc    Authenticate user & get token
 // @access  Public
 router.post('/login', async (req, res) => {
+    console.log('[LOGIN] req.body:', req.body);
     const { email, password } = req.body;
 
     try {
         // Check user
         let user = await User.findOne({ email });
         if (!user) {
+            console.log('[LOGIN] No user found for email:', email);
             return res.status(400).json({ msg: 'Invalid Credentials' });
         }
 
@@ -130,18 +134,20 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// @route   GET api/auth/user
+// @route   GET api/auth/user (alias: /me)
 // @desc    Get user data
 // @access  Private
-router.get('/user', auth, async (req, res) => {
+const getUser = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('-password');
-        res.json(user);
+        const user = await User.findById(req.user.id || req.user._id).select('-password');
+        res.json({ user });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
     }
-});
+};
+router.get('/user', auth, getUser);
+router.get('/me', auth, getUser);
 
 // @route   GET api/auth/profile/:id
 // @desc    Get public user profile

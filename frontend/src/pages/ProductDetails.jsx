@@ -55,8 +55,17 @@ const ProductDetails = () => {
 
             <div className="container mx-auto px-4 py-8">
                 <div className="flex justify-between items-center mb-6">
-                    <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-600 hover:text-primary font-medium transition">
-                        <ArrowLeft size={20} /> Back to Products
+                    <button
+                        onClick={() => {
+                            if (user && user.role === 'admin') {
+                                navigate('/admin/products');
+                            } else {
+                                navigate('/');
+                            }
+                        }}
+                        className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700 font-medium transition-colors duration-200"
+                    >
+                        <ArrowLeft size={18} /> Back to Products
                     </button>
                     <Link to="/" className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 text-gray-700 hover:bg-gray-50 transition">
                         Home

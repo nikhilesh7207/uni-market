@@ -10,7 +10,7 @@ const ProductCard = ({ product, onReportClick, onEditClick, onDeleteClick, isOwn
 
     // Determine if the current user is the owner if isOwner prop isn't explicitly passed
     // But rely on props mostly for flexibility
-    const showOwnerActions = isOwner || (user && (user._id === product.seller?._id || user.id === product.seller?._id));
+    const showOwnerActions = isOwner || (user && (user._id === product.seller?._id || user._id === product.seller || user.id === product.seller?._id || user.id === product.seller));
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 group flex flex-col h-full">
@@ -78,7 +78,7 @@ const ProductCard = ({ product, onReportClick, onEditClick, onDeleteClick, isOwn
                     ) : (
                         <button
                             onClick={() => navigate(`/product/${product._id}`)}
-                            className="w-full py-2 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary/90 transition shadow-sm hover:shadow-md active:scale-95 flex items-center justify-center gap-2"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 shadow-sm hover:shadow-md active:scale-95 flex items-center justify-center gap-2"
                         >
                             <MessageCircle size={16} /> View Details
                         </button>
