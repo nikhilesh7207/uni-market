@@ -25,9 +25,20 @@ const Profile = () => {
     });
 
     useEffect(() => {
+        let userId = id;
+
+        // If the URL id is missing or literal 'undefined', fall back to currentUser or localStorage
+        if (!userId || userId === 'undefined') {
+            userId = currentUser?._id || currentUser?.id || localStorage.getItem('userId');
+        }
+
+        console.log("Fetching profile for userId:", userId);
+
         const fetchData = async () => {
+            if (!userId) return; // safety check
+
             try {
-                const userRes = await axios.get(`${API_BASE_URL}/api/auth/profile/${id}`);
+                const userRes = await axios.get(`${API_BASE_URL}/api/auth/profile/${userId}`);
                 setProfileUser(userRes.data);
                 setFormData({
                     department: userRes.data.department || '',
@@ -36,7 +47,7 @@ const Profile = () => {
                     contactPreference: userRes.data.contactPreference || 'Chat Only'
                 });
 
-                const productsRes = await axios.get(`${API_BASE_URL}/api/products/user/${id}`);
+                const productsRes = await axios.get(`${API_BASE_URL}/api/products/user/${userId}`);
                 setProducts(productsRes.data);
             } catch (err) {
                 console.error(err);
@@ -45,8 +56,12 @@ const Profile = () => {
             }
         };
 
-        if (id) fetchData();
-    }, [id]);
+        if (userId) {
+            fetchData();
+        } else {
+            setLoading(false); // Make sure to stop loading if there is no user
+        }
+    }, [id, currentUser]);
 
     const handleUpdateProfile = async () => {
         try {

@@ -1,5 +1,7 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const SOCKET_BASE_URL = import.meta.env.VITE_SOCKET_BASE_URL || "http://localhost:5000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
+const API_BASE_URL = BACKEND_URL;
+const SOCKET_BASE_URL = BACKEND_URL;
 
 export { API_BASE_URL, SOCKET_BASE_URL };
 

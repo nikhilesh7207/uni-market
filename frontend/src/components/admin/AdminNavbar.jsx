@@ -68,6 +68,23 @@ const AdminNavbar = () => {
 
             {/* Right Profile & Actions */}
             <div className="flex items-center gap-4">
+                {/* Switch to User Portal */}
+                <Link
+                    to="/"
+                    className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 px-4 py-2 rounded-full shadow-sm hover:from-blue-600 hover:to-indigo-600 hover:text-white hover:shadow-md font-medium transition-all duration-300 border border-blue-100 hover:border-transparent group"
+                    title="Switch to User Portal"
+                >
+                    <User size={16} className="text-blue-500 group-hover:text-white transition-colors" />
+                    <span>User Portal</span>
+                </Link>
+                <Link
+                    to="/"
+                    className="sm:hidden flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 rounded-full shadow-sm hover:from-blue-600 hover:to-indigo-600 hover:text-white hover:shadow-md transition-all duration-300 border border-blue-100 hover:border-transparent group"
+                    title="Switch to User Portal"
+                >
+                    <User size={18} className="text-blue-500 group-hover:text-white transition-colors" />
+                </Link>
+
                 {/* Admin Notifications */}
                 <Link to="/admin/reported-chats" className="relative p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors flex items-center justify-center">
                     <Bell size={20} />
