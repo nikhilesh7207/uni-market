@@ -45,11 +45,11 @@ const ProductCard = ({ product, onReportClick, onEditClick, onDeleteClick, isOwn
 
             {/* Content Section */}
             <div className="p-4 flex-1 flex flex-col">
-                <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-gray-900 line-clamp-1 flex-1" title={product.name}>
+                <div className="flex justify-between items-start mb-2 gap-2">
+                    <h3 className="text-sm sm:text-base font-bold text-gray-900 line-clamp-1 flex-1" title={product.name}>
                         {product.name}
                     </h3>
-                    <span className="text-primary font-extrabold bg-primary/5 px-2 py-0.5 rounded-lg ml-2">
+                    <span className="text-primary font-extrabold bg-primary/5 px-2 py-0.5 rounded-lg text-xs sm:text-sm whitespace-nowrap">
                         ₹{product.price}
                     </span>
                 </div>

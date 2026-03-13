@@ -12,7 +12,7 @@ const ProductSchema = new mongoose.Schema({
     category: {
         type: String,
         required: true,
-        enum: ['Books', 'Electronics', 'Furniture', 'Clothing', 'Other']
+        enum: ['Books', 'Electronics', 'Stationary', 'Other']
     },
     price: {
         type: Number,
@@ -38,7 +38,11 @@ const ProductSchema = new mongoose.Schema({
         reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         reason: { type: String, required: true },
         timestamp: { type: Date, default: Date.now }
-    }]
+    }],
+    reportCount: {
+        type: Number,
+        default: 0
+    }
 });
 
 module.exports = mongoose.model('Product', ProductSchema);

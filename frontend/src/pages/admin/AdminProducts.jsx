@@ -16,7 +16,7 @@ const AdminProducts = () => {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [productToDelete, setProductToDelete] = useState(null);
 
-    const categories = ['All', 'Books', 'Electronics', 'Furniture', 'Clothing', 'Other'];
+    const categories = ['All', 'Books', 'Electronics', 'Stationary', 'Other'];
 
     const fetchProducts = async () => {
         try {
@@ -143,11 +143,6 @@ const AdminProducts = () => {
                                                     <p className="font-medium text-slate-900 truncate max-w-[150px] sm:max-w-[200px]" title={product.name}>
                                                         {product.name}
                                                     </p>
-                                                    {product.reports?.length > 0 && (
-                                                        <span className="inline-flex items-center gap-1 text-xs font-medium text-red-600 mt-0.5">
-                                                            <AlertCircle size={12} /> Reported ({product.reports.length})
-                                                        </span>
-                                                    )}
                                                 </div>
                                             </div>
                                         </td>
@@ -166,7 +161,7 @@ const AdminProducts = () => {
                                             {product.seller?.name || 'Unknown'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex items-center justify-end gap-2 opactiy-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center justify-end gap-2 opacity-100 transition-opacity">
                                                 <button
                                                     onClick={() => confirmDelete(product)}
                                                     className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"

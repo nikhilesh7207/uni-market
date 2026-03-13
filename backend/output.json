@@ -1,0 +1,56 @@
+{
+  "totalChats": 3,
+  "chats": [
+    {
+      "id": "69aec9f8d0b4097d01a887c7",
+      "participants": [
+        "69aeb47e756030c5bc72d3fc",
+        "698b182d44285799bf78a64b"
+      ],
+      "deletedBy": [
+        "69aeb47e756030c5bc72d3fc"
+      ],
+      "messagesCount": 7
+    },
+    {
+      "id": "69aedeb29fb8abde2c311374",
+      "participants": [
+        "69aede9f9fb8abde2c311368",
+        "698b182d44285799bf78a64b"
+      ],
+      "deletedBy": [],
+      "messagesCount": 0
+    },
+    {
+      "id": "69af87b5dcfcd00d5e02d957",
+      "participants": [
+        "69af8758dcfcd00d5e02d94b",
+        "698b182d44285799bf78a64b"
+      ],
+      "deletedBy": [],
+      "messagesCount": 0
+    }
+  ],
+  "users": [
+    {
+      "name": "zvdv",
+      "id": "69aeb47e756030c5bc72d3fc"
+    },
+    {
+      "name": "amar",
+      "id": "698b182d44285799bf78a64b"
+    },
+    {
+      "name": "Hari Krish",
+      "id": "69aede9f9fb8abde2c311368"
+    },
+    {
+      "name": "Bhadry",
+      "id": "69af8758dcfcd00d5e02d94b"
+    },
+    {
+      "name": "Test User",
+      "id": "69b0de9696327bae60664986"
+    }
+  ]
+}

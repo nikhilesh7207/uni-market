@@ -26,7 +26,7 @@ const SellProduct = () => {
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef(null);
 
-    const categories = ['Electronics', 'Books', 'Furniture', 'Clothing', 'Other'];
+    const categories = ['Electronics', 'Books', 'Stationary', 'Other'];
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -103,7 +103,7 @@ const SellProduct = () => {
             <Navbar />
             <div className="container mx-auto px-4 py-8">
                 <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className="p-6 md:p-8 bg-white border-b border-gray-100 relative">
+                    <div className="p-4 sm:p-6 md:p-8 bg-white border-b border-gray-100 relative">
                         {/* Back to Products Button */}
                         <button
                             onClick={() => {
@@ -124,7 +124,7 @@ const SellProduct = () => {
                         <p className="text-gray-500 mt-1">Fill in the details to sell your item</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
+                    <form onSubmit={handleSubmit} className="p-4 sm:p-6 md:p-8 space-y-6">
                         {/* Name Input */}
                         <div className="space-y-2">
                             <label className="text-sm font-semibold text-gray-700">Product Title</label>

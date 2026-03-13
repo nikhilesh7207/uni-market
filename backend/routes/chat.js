@@ -52,6 +52,8 @@ router.get('/user', auth, async (req, res) => {
             .populate('product', ['name', 'images'])
             .sort({ updatedAt: -1 });
 
+        console.log(`[DEBUG API] Fetching chats for user ID: ${req.user.id}. Found: ${chats.length} chats.`);
+
         res.json(chats);
     } catch (err) {
         console.error(err.message);

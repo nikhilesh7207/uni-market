@@ -40,7 +40,7 @@ const Home = () => {
         return matchesSearch && matchesCategory;
     });
 
-    const categories = ['All', 'Books', 'Electronics', 'Furniture', 'Clothing', 'Other'];
+    const categories = ['All', 'Books', 'Electronics', 'Stationary', 'Other'];
 
     const handleReportProduct = async () => {
         if (!reportReason.trim()) return alert('Please provide a reason');
@@ -67,7 +67,7 @@ const Home = () => {
                 <div className="mb-8 flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
 
                     {/* Search Bar */}
-                    <div className="relative w-full md:w-96">
+                    <div className="relative w-full md:w-96 md:max-w-md">
                         <Search className="absolute left-3 top-3 text-gray-400" size={20} />
                         <input
                             type="text"

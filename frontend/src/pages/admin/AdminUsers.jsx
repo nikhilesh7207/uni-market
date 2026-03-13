@@ -10,6 +10,7 @@ const AdminUsers = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
+    const [filterRole, setFilterRole] = useState('All');
     const [currentPage, setCurrentPage] = useState(1);
     const usersPerPage = 10;
 
@@ -78,7 +79,9 @@ const AdminUsers = () => {
             user.email.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterStatus === 'All' ? true :
             filterStatus === 'Blocked' ? user.isBlocked : !user.isBlocked;
-        return matchesSearch && matchesStatus;
+        const matchesRole = filterRole === 'All' ? true :
+            user.role === filterRole.toLowerCase();
+        return matchesSearch && matchesStatus && matchesRole;
     });
 
     // Pagination Logic
@@ -89,36 +92,61 @@ const AdminUsers = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h1 className="text-2xl font-bold text-slate-900 mb-2">User Management</h1>
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900 mb-1">User Management</h1>
+                    <p className="text-sm text-slate-500">Manage all users, roles, and account statuses from a single dashboard.</p>
+                </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                <div className="flex flex-col md:flex-row gap-4 w-full xl:w-auto">
                     {/* Search Bar */}
-                    <div className="relative">
+                    <div className="relative flex-grow">
                         <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
                         <input
                             type="text"
                             placeholder="Search users..."
-                            className="pl-10 pr-4 py-2 w-full sm:w-64 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-shadow text-slate-900"
+                            className="pl-10 pr-4 py-2 w-full md:w-64 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all text-slate-900 shadow-sm"
                             value={searchTerm}
                             onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                         />
                     </div>
 
-                    {/* Filter Dropdown */}
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                            <Filter size={18} className="text-gray-400" />
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="hidden sm:flex items-center gap-2 mr-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                            <Filter size={14} /> Filter:
                         </div>
-                        <select
-                            className="pl-10 pr-8 py-2 w-full sm:w-auto bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 appearance-none text-slate-900"
-                            value={filterStatus}
-                            onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
-                        >
-                            <option value="All">All Status</option>
-                            <option value="Active">Active</option>
-                            <option value="Blocked">Blocked</option>
-                        </select>
+
+                        {/* Status Filters */}
+                        <div className="flex p-1 bg-slate-100 rounded-xl">
+                            {['All', 'Active', 'Blocked'].map((status) => (
+                                <button
+                                    key={status}
+                                    onClick={() => { setFilterStatus(status); setCurrentPage(1); }}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${filterStatus === status
+                                        ? 'bg-blue-600 text-white shadow-md'
+                                        : 'text-slate-600 hover:bg-slate-200'
+                                        }`}
+                                >
+                                    {status}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Role Filters */}
+                        <div className="flex p-1 bg-slate-100 rounded-xl">
+                            {['All', 'Student', 'Faculty', 'Admin'].map((role) => (
+                                <button
+                                    key={role}
+                                    onClick={() => { setFilterRole(role); setCurrentPage(1); }}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${filterRole === role
+                                        ? 'bg-blue-600 text-white shadow-md'
+                                        : 'text-slate-600 hover:bg-slate-200'
+                                        }`}
+                                >
+                                    {role}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -150,9 +178,9 @@ const AdminUsers = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-3">
                                                 {user.profilePic ? (
-                                                    <img src={user.profilePic} className="w-10 h-10 rounded-full object-cover" alt="" />
+                                                    <img src={user.profilePic} className="w-10 h-10 rounded-full object-cover shadow-sm" alt="" />
                                                 ) : (
-                                                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                                                    <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold shadow-md border-2 border-white">
                                                         {user.name.charAt(0)}
                                                     </div>
                                                 )}
@@ -166,17 +194,17 @@ const AdminUsers = () => {
                                             <p className="text-sm text-slate-900">{user.email}</p>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${user.role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' :
-                                                user.role === 'faculty' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' :
-                                                    'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${user.role === 'admin' ? 'bg-purple-600 text-white shadow-sm' :
+                                                user.role === 'faculty' ? 'bg-amber-600 text-white shadow-sm' :
+                                                    'bg-blue-600 text-white shadow-sm'
                                                 }`}>
                                                 {user.role}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${user.isBlocked ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${user.isBlocked ? 'bg-red-600 text-white shadow-sm' : 'bg-emerald-600 text-white shadow-sm'
                                                 }`}>
-                                                <span className={`w-1.5 h-1.5 rounded-full ${user.isBlocked ? 'bg-red-500' : 'bg-emerald-500'}`}></span>
+                                                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
                                                 {user.isBlocked ? 'Blocked' : 'Active'}
                                             </span>
                                         </td>
@@ -184,7 +212,7 @@ const AdminUsers = () => {
                                             {format(new Date(user.createdAt), 'MMM dd, yyyy')}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex items-center justify-end gap-2 opactiy-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center justify-end gap-2 opacity-100 transition-opacity">
                                                 {user.role !== 'admin' && (
                                                     <>
                                                         <button

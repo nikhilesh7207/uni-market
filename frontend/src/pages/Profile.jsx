@@ -101,6 +101,24 @@ const Profile = () => {
         }
     };
 
+    const handleDeletePic = async () => {
+        if (!window.confirm('Are you sure you want to remove your profile picture?')) return;
+        setUploading(true);
+        try {
+            await axios.delete(`${API_BASE_URL}/api/auth/profile-pic`);
+            setProfileUser(prev => ({ ...prev, profilePic: '' }));
+
+            if (currentUser && currentUser.id === profileUser._id) {
+                window.location.reload();
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Failed to remove image');
+        } finally {
+            setUploading(false);
+        }
+    };
+
     const handleDeleteProduct = async (productId) => {
         if (!window.confirm('Are you sure you want to delete this product?')) return;
         try {
@@ -162,10 +180,20 @@ const Profile = () => {
                                     )}
                                 </div>
                                 {isOwner && (
-                                    <label className="absolute bottom-0 right-0 p-2 bg-primary text-white rounded-full cursor-pointer hover:bg-primary-hover transition shadow-sm border-2 border-white">
+                                    <label className="absolute bottom-0 right-0 p-2 bg-white text-black rounded-full cursor-pointer hover:bg-gray-100 transition shadow-sm border-2 border-gray-200">
                                         <Camera size={16} />
                                         <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
                                     </label>
+                                )}
+                                {isOwner && profileUser.profilePic && (
+                                    <button
+                                        onClick={handleDeletePic}
+                                        disabled={uploading}
+                                        className="absolute top-0 right-0 p-1.5 bg-red-500 text-white rounded-full cursor-pointer hover:bg-red-600 transition shadow-sm border-2 border-white"
+                                        title="Remove Picture"
+                                    >
+                                        <X size={14} />
+                                    </button>
                                 )}
                             </div>
                             {isOwner && !isEditing && (

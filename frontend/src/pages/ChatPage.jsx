@@ -60,6 +60,7 @@ const ChatPage = () => {
         const fetchChats = async () => {
             try {
                 const res = await axios.get(`${API_BASE_URL}/api/chat/user`);
+                console.log("[DEBUG] Fetched Chats:", res.data);
                 setChats(res.data);
             } catch (err) {
                 console.error("Failed to fetch chats", err);
@@ -190,12 +191,20 @@ const ChatPage = () => {
             <Navbar />
 
             <div className="container mx-auto px-4 py-8 flex-1 flex flex-col">
-                <h1 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                    <MessageCircle size={32} className="text-primary" />
-                    Messages
-                </h1>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                        <MessageCircle size={32} className="text-primary" />
+                        Messages
+                    </h1>
+                    <button
+                        onClick={() => window.location.href = '/'}
+                        className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 transition font-medium text-sm flex items-center gap-2"
+                    >
+                        <span>&larr;</span> Back to Products
+                    </button>
+                </div>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col md:flex-row h-[600px]">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col md:flex-row h-[80vh] min-h-[500px] md:h-[600px]">
 
                     {/* Chat List (Sidebar) */}
                     <div className={`w-full md:w-1/3 border-r border-gray-100 flex flex-col ${selectedChatId ? 'hidden md:flex' : 'flex'}`}>

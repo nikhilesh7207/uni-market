@@ -5,26 +5,16 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const multer = require('multer');
-const path = require('path');
 
-// Configure Multer for file upload
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/'); // Make sure this folder exists
-    },
-    filename: function (req, file, cb) {
-        cb(null, 'profile-' + Date.now() + path.extname(file.originalname));
-    }
-});
-
+// Configure Multer for memory storage
+const storage = multer.memoryStorage();
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB file size limit for upload
     fileFilter: function (req, file, cb) {
         const filetypes = /jpeg|jpg|png|webp/;
         const mimetype = filetypes.test(file.mimetype);
-        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-        if (mimetype && extname) {
+        if (mimetype) {
             return cb(null, true);
         }
         cb(new Error('Error: Images Only!'));
@@ -202,16 +192,16 @@ router.post('/upload-profile-pic', auth, upload.single('profilePic'), async (req
             return res.status(400).json({ msg: 'No file uploaded' });
         }
 
-        // Construct URL - Make sure this matches your server address
-        const profilePicUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+        // Convert file buffer to Base64 string
+        const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
 
         let user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ msg: 'User not found' });
 
-        user.profilePic = profilePicUrl;
+        user.profilePic = base64Image;
         await user.save();
 
-        res.json({ profilePic: profilePicUrl });
+        res.json({ profilePic: base64Image });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -241,6 +231,24 @@ router.post('/block-user/:id', auth, async (req, res) => {
             await user.save();
             return res.json({ msg: 'User blocked', isBlocked: true });
         }
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   DELETE api/auth/profile-pic
+// @desc    Delete/Remove profile picture
+// @access  Private
+router.delete('/profile-pic', auth, async (req, res) => {
+    try {
+        let user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        user.profilePic = '';
+        await user.save();
+
+        res.json({ msg: 'Profile picture removed successfully' });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

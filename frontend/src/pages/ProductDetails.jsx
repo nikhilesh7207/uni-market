@@ -142,7 +142,7 @@ const ProductDetails = () => {
                                                 console.error("Failed to start chat", err);
                                             }
                                         }}
-                                        className="w-full btn-primary py-3 rounded-xl flex items-center justify-center gap-2 font-bold text-lg shadow-lg hover:shadow-xl transition-all"
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 sm:py-3 rounded-xl flex items-center justify-center gap-2 font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all"
                                     >
                                         <MessageCircle size={24} />
                                         Contact Seller
@@ -150,7 +150,7 @@ const ProductDetails = () => {
 
                                     <button
                                         onClick={() => setShowReportPopup(true)}
-                                        className="w-full py-2.5 rounded-xl flex items-center justify-center gap-2 font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all border border-transparent hover:border-red-100"
+                                        className="w-full sm:flex-1 py-2 sm:py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 font-medium text-sm sm:text-base border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transition-colors"
                                     >
                                         <AlertTriangle size={18} />
                                         Report Product
@@ -159,7 +159,7 @@ const ProductDetails = () => {
                             )}
 
                             {isOwner && (
-                                <div className="mt-6 flex gap-3">
+                                <div className="mt-6 flex flex-col sm:flex-row gap-3">
                                     <button
                                         onClick={() => navigate('/sell', { state: { product } })}
                                         className="flex-1 py-3 rounded-xl border-2 border-primary text-primary font-bold hover:bg-primary/5 transition"
@@ -209,7 +209,7 @@ const ProductDetails = () => {
                             onChange={(e) => setReportReason(e.target.value)}
                         ></textarea>
 
-                        <div className="flex gap-3">
+                        <div className="flex flex-col sm:flex-row gap-3">
                             <button
                                 onClick={() => setShowReportPopup(false)}
                                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition"

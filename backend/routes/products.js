@@ -3,18 +3,12 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const Product = require('../models/Product');
 const multer = require('multer');
-const path = require('path');
 
-// Multer Config
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+const storage = multer.memoryStorage();
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit per image
 });
-const upload = multer({ storage: storage });
 
 // @route   GET api/products
 // @desc    Get all products
@@ -54,7 +48,10 @@ router.get('/:id', async (req, res) => {
 router.post('/', [auth, upload.single('image')], async (req, res) => {
     const { name, description, category, price } = req.body;
 
-    const imageUrl = req.file ? `${process.env.SERVER_BASE_URL || 'http://localhost:5000'}/uploads/${req.file.filename}` : '';
+    let imageUrl = '';
+    if (req.file) {
+        imageUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    }
     const images = imageUrl ? [imageUrl] : [];
 
     try {
@@ -140,7 +137,7 @@ router.put('/:id', [auth, upload.single('image')], async (req, res) => {
     }
 
     if (req.file) {
-        const imageUrl = `${process.env.SERVER_BASE_URL || 'http://localhost:5000'}/uploads/${req.file.filename}`;
+        const imageUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
         updatedImages = [...updatedImages, imageUrl];
     }
 
@@ -169,24 +166,37 @@ router.put('/:id', [auth, upload.single('image')], async (req, res) => {
     }
 });
 
+const Report = require('../models/Report');
+
 // @route   POST api/products/:id/report
 // @desc    Report a product
 // @access  Private
 router.post('/:id/report', auth, async (req, res) => {
-    const { reason } = req.body;
+    const { reason, description } = req.body;
     try {
         const product = await Product.findById(req.params.id);
         if (!product) return res.status(404).json({ msg: 'Product not found' });
 
-        const newReport = {
-            reportedBy: req.user.id,
-            reason
-        };
+        const newReport = new Report({
+            reportType: 'product',
+            reporter: req.user.id,
+            product: req.params.id,
+            reason: reason,
+            description: description || ''
+        });
 
-        product.reports.unshift(newReport);
+        await newReport.save();
+        
+        // Increment product report count and maintain internal reference
+        product.reports.unshift({
+            reportedBy: req.user.id,
+            reason,
+            timestamp: new Date()
+        });
+        product.reportCount = (product.reportCount || 0) + 1;
         await product.save();
 
-        res.json(product.reports);
+        res.json({ success: true, report: newReport });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

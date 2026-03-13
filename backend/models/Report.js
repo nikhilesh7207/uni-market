@@ -1,28 +1,43 @@
 const mongoose = require('mongoose');
 
 const ReportSchema = new mongoose.Schema({
-    reportedBy: {
+    reportType: {
+        type: String,
+        enum: ['product', 'chat', 'user'],
+        required: true,
+        default: 'chat'
+    },
+    reporter: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    reportedUser: {
-        type: mongoose.Schema.Types.ObjectId, // Optional: if reporting a specific user
-        ref: 'User'
+    product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+        required: function() { return this.reportType === 'product'; }
     },
     chat: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Chat',
-        required: true
+        required: function() { return this.reportType === 'chat'; }
     },
-    reportReason: {
+    reportedUser: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    reason: {
         type: String,
         required: true
+    },
+    description: {
+        type: String,
+        default: ''
     },
     status: {
         type: String,
-        enum: ['Pending', 'Reviewed', 'Resolved', 'Dismissed'],
-        default: 'Pending'
+        enum: ['pending', 'reviewed', 'resolved', 'dismissed'],
+        default: 'pending'
     },
     adminNotes: {
         type: String,

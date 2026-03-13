@@ -47,8 +47,8 @@ const AdminAnalytics = () => {
     const categoryData = [
         { name: 'Books', value: 400 },
         { name: 'Electronics', value: 300 },
-        { name: 'Furniture', value: 300 },
-        { name: 'Clothing', value: 200 },
+        { name: 'Stationary', value: 300 },
+        { name: 'Other', value: 200 },
         { name: 'Other', value: 100 },
     ];
 

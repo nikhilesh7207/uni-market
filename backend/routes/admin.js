@@ -212,8 +212,15 @@ router.delete('/product/:id', [auth, adminAuth], async (req, res) => {
     try {
         const product = await Product.findByIdAndDelete(req.params.id);
         if (!product) return res.status(404).json({ msg: 'Product not found' });
+
+        // Resolve all reports associated with this product
+        await Report.updateMany(
+            { product: req.params.id },
+            { $set: { status: 'resolved', adminNotes: 'Product deleted by Admin' } }
+        );
+
         await logAdminAction(req.user.id, 'Deleted Product', null, 'Product', `Admin deleted product ${product.name}`);
-        res.json({ msg: 'Product removed by admin' });
+        res.json({ msg: 'Product removed by admin and reports resolved' });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -267,8 +274,9 @@ router.put('/order/:id/status', [auth, adminAuth], async (req, res) => {
 router.get('/reports', [auth, adminAuth], async (req, res) => {
     try {
         const reports = await Report.find()
-            .populate('reportedBy', ['name', 'email'])
+            .populate('reporter', ['name', 'email'])
             .populate('reportedUser', ['name', 'email'])
+            .populate('product', ['name', 'images', 'price'])
             .populate({
                 path: 'chat',
                 populate: { path: 'participants', select: 'name email profilePic' }
@@ -286,7 +294,7 @@ router.get('/reports', [auth, adminAuth], async (req, res) => {
 // @access  Private/Admin
 router.put('/report/:id/resolve', [auth, adminAuth], async (req, res) => {
     try {
-        const report = await Report.findByIdAndUpdate(req.params.id, { status: 'Resolved' }, { new: true });
+        const report = await Report.findByIdAndUpdate(req.params.id, { status: 'resolved' }, { new: true });
         if (!report) return res.status(404).json({ msg: 'Report not found' });
         await logAdminAction(req.user.id, 'Resolved Report', report._id, 'Report', `Admin resolved report ${report._id}`);
         res.json(report);
