@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: uni-market-backend
+    env: node
+    region: ohio
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGO_URI
+        description: "MongoDB Atlas connection string"
+      - key: JWT_SECRET
+        description: "Secret key for JWT"
+      - key: CLIENT_URL
+        value: https://frontend-eight-hazel-15.vercel.app
+      - key: PORT
+        value: 5000
