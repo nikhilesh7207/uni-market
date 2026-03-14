@@ -9,8 +9,10 @@ services:
     startCommand: npm start
     envVars:
       - key: MONGO_URI
+        sync: false
         description: "MongoDB Atlas connection string"
       - key: JWT_SECRET
+        sync: false
         description: "Secret key for JWT"
       - key: CLIENT_URL
         value: https://frontend-eight-hazel-15.vercel.app
