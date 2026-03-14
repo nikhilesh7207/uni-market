@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, LogOut, Menu, Bell } from 'lucide-react';
@@ -6,7 +6,7 @@ import { io } from 'socket.io-client';
 import axios from 'axios';
 import { SOCKET_BASE_URL, API_BASE_URL } from '../../config';
 
-const AdminNavbar = () => {
+const AdminNavbar = ({ toggleSidebar }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [pendingReports, setPendingReports] = useState(0);
@@ -49,9 +49,12 @@ const AdminNavbar = () => {
 
     return (
         <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-4 sm:px-6 z-10 sticky top-0 transition-colors duration-300">
-            {/* Mobile Menu Toggle (stub for future logic) */}
+            {/* Mobile Menu Toggle */}
             <div className="flex items-center md:hidden">
-                <button className="p-2 text-gray-500 hover:text-blue-600 rounded-lg focus:outline-none">
+                <button 
+                    onClick={toggleSidebar}
+                    className="p-2 text-gray-500 hover:text-blue-600 rounded-lg focus:outline-none"
+                >
                     <Menu size={24} />
                 </button>
             </div>

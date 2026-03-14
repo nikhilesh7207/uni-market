@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import AdminNavbar from './AdminNavbar';
@@ -6,6 +7,7 @@ import { Shield } from 'lucide-react';
 
 const AdminLayout = () => {
     const { user, loading } = useAuth();
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
     if (loading) {
         return (
@@ -30,11 +32,11 @@ const AdminLayout = () => {
     return (
         <div className="min-h-screen bg-slate-50 flex text-slate-800 font-sans transition-colors duration-300">
             {/* Sidebar (left) */}
-            <Sidebar />
+            <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
             <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
                 {/* Top Navbar */}
-                <AdminNavbar />
+                <AdminNavbar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
 
                 {/* Main Content Area */}
                 <main className="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 p-4 md:p-6 transition-colors duration-300">
