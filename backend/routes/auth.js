@@ -255,4 +255,40 @@ router.delete('/profile-pic', auth, async (req, res) => {
     }
 });
 
+// @route   GET api/auth/temp-create-admin
+// @desc    Temp route to seed admin in Atlas production
+// @access  Public
+router.get('/temp-create-admin', async (req, res) => {
+    const { secret } = req.query;
+    if (secret !== 'unimarketSecureTempSecret2026') {
+        return res.status(401).json({ msg: 'Unauthorized' });
+    }
+
+    try {
+        const email = 'admin@unimarket.edu';
+        let user = await User.findOne({ email });
+        if (user) {
+            user.password = 'adminSecurePassword2026';
+            user.role = 'admin';
+            await user.save();
+            return res.json({ msg: 'Admin user updated successfully in Atlas' });
+        }
+
+        user = new User({
+            name: 'Admin User',
+            email,
+            password: 'adminSecurePassword2026',
+            role: 'admin',
+            department: 'Administration',
+            year: 'Staff'
+        });
+
+        await user.save();
+        res.json({ msg: 'Admin user created successfully in Atlas' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error: ' + err.message);
+    }
+});
+
 module.exports = router;
