@@ -4,8 +4,8 @@ const User = require('../models/User');
 const ATLAS_URI = 'mongodb+srv://nikhileshalapati90_db_user:amarnikhilesh@cluster0.oij4x72.mongodb.net/?appName=Cluster0';
 
 const ADMIN_NAME = 'Admin User';
-const ADMIN_EMAIL = 'admin@unimarket.edu';
-const ADMIN_PASSWORD = 'adminSecurePassword2026';
+const ADMIN_EMAIL = '231fa04f38@university.edu';
+const ADMIN_PASSWORD = '9398665923';
 
 async function seedAtlasDatabase() {
     try {

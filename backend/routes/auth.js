@@ -270,10 +270,10 @@ router.get('/temp-create-admin', async (req, res) => {
     }
 
     try {
-        const email = 'admin@unimarket.edu';
+        const email = '231fa04f38@university.edu';
         let user = await User.findOne({ email });
         if (user) {
-            user.password = 'adminSecurePassword2026';
+            user.password = '9398665923';
             user.role = 'admin';
             await user.save();
             return res.json({ msg: 'Admin user updated successfully in Atlas' });
@@ -282,7 +282,7 @@ router.get('/temp-create-admin', async (req, res) => {
         user = new User({
             name: 'Admin User',
             email,
-            password: 'adminSecurePassword2026',
+            password: '9398665923',
             role: 'admin',
             department: 'Administration',
             year: 'Staff'

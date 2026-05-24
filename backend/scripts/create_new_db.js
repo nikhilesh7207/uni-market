@@ -4,8 +4,8 @@ const User = require('../models/User');
 const NEW_DB_URI = 'mongodb://127.0.0.1:27017/unimarket_new';
 
 const ADMIN_NAME = 'Admin User';
-const ADMIN_EMAIL = 'admin@unimarket.edu';
-const ADMIN_PASSWORD = 'adminSecurePassword2026';
+const ADMIN_EMAIL = '231fa04f38@university.edu';
+const ADMIN_PASSWORD = '9398665923';
 
 async function seedNewDatabase() {
     try {
