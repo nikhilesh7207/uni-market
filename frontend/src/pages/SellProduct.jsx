@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import { Upload, DollarSign, Tag, Type, X, ArrowLeft, Loader2, FileText, ImageIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../config';
+import { compressImage } from '../utils/compressor';
 
 const SellProduct = () => {
     const navigate = useNavigate();
@@ -65,7 +66,13 @@ const SellProduct = () => {
             if (typeof firstImage === 'string') {
                 data.append('existingImages', firstImage); // Handle existing images in edit mode
             } else {
-                data.append('image', firstImage);
+                try {
+                    const compressed = await compressImage(firstImage);
+                    data.append('image', compressed);
+                } catch (err) {
+                    console.error("Failed to compress image", err);
+                    data.append('image', firstImage);
+                }
             }
         }
 

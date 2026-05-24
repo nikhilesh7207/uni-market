@@ -304,10 +304,10 @@ router.put('/report/:id/resolve', [auth, adminAuth], async (req, res) => {
     }
 });
 
-// @route   GET api/admin/chat/:chatId/full
+// @route   GET api/admin/chat/:chatId
 // @desc    Get full chat history for admin
 // @access  Private/Admin
-router.get('/chat/:chatId/full', [auth, adminAuth], async (req, res) => {
+router.get('/chat/:chatId', [auth, adminAuth], async (req, res) => {
     try {
         const chat = await Chat.findById(req.params.chatId)
             .populate('participants', ['name', 'email', 'profilePic'])
@@ -354,7 +354,7 @@ router.delete('/chat/:chatId', [auth, adminAuth], async (req, res) => {
         await Chat.findByIdAndDelete(req.params.chatId);
         await Report.updateMany(
             { chat: req.params.chatId },
-            { $set: { status: 'Resolved', reportReason: 'Chat deleted by Admin' } }
+            { $set: { status: 'resolved', adminNotes: 'Chat deleted by Admin' } }
         );
 
         await logAdminAction(req.user.id, 'Deleted Chat', null, 'Chat', `Admin deleted chat conversation ${req.params.chatId}`);

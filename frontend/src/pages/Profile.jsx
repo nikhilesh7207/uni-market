@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import { User, Mail, BookOpen, Calendar, MessageSquare, Edit, Trash2, Save, X, ArrowLeft, Home, Camera, Loader } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { compressImage } from '../utils/compressor';
 
 const Profile = () => {
     const { id } = useParams();
@@ -78,11 +79,12 @@ const Profile = () => {
         const file = e.target.files[0];
         if (!file) return;
 
-        const formData = new FormData();
-        formData.append('profilePic', file);
-
         setUploading(true);
         try {
+            const compressed = await compressImage(file);
+            const formData = new FormData();
+            formData.append('profilePic', compressed);
+
             const res = await axios.post(`${API_BASE_URL}/api/auth/upload-profile-pic`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'

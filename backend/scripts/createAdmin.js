@@ -6,8 +6,9 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
-// Hardcode or get from env variables
-const MONGO_URI = 'mongodb://127.0.0.1:27017/unimarket';
+// Load env variables
+require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/unimarket';
 
 const ADMIN_NAME = 'Nikhilesh';
 const ADMIN_EMAIL = 'nikhilesh@university.edu';

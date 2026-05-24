@@ -150,7 +150,7 @@ const AdminReportedChats = () => {
                                             {report.chatHistory?.length || 0} Messages Captured
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {format(new Date(report.reportedAt), 'MMM dd, yyyy - hh:mm a')}
+                                            {report.reportedAt ? format(new Date(report.reportedAt), 'MMM dd, yyyy - hh:mm a') : 'Unknown Date'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
                                             <div className="flex items-center justify-end gap-2">
@@ -234,7 +234,7 @@ const AdminReportedChats = () => {
                                                         {msg.sender?.name || 'Unknown User'}
                                                     </span>
                                                     <span className={`text-[10px] ${isReporter ? 'text-blue-200' : 'text-slate-400'}`}>
-                                                        {format(new Date(msg.time), 'hh:mm a')}
+                                                        {msg.time ? format(new Date(msg.time), 'hh:mm a') : 'Unknown Time'}
                                                     </span>
                                                 </div>
                                                 <p className="text-sm break-words whitespace-pre-wrap">{msg.content}</p>

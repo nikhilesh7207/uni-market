@@ -49,4 +49,9 @@ const ReportSchema = new mongoose.Schema({
     }
 });
 
+ReportSchema.index({ reporter: 1 });
+ReportSchema.index({ product: 1 });
+ReportSchema.index({ chat: 1 });
+ReportSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model('Report', ReportSchema);

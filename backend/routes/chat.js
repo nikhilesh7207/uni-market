@@ -207,10 +207,11 @@ router.post('/:chatId/report', auth, async (req, res) => {
         const reportedUserId = chat.participants.find(p => p.toString() !== req.user.id);
 
         const newReport = new Report({
-            reportedBy: req.user.id,
+            reportType: 'chat',
+            reporter: req.user.id,
             reportedUser: reportedUserId,
             chat: chat._id,
-            reportReason: reason || 'User reported this conversation'
+            reason: reason || 'User reported this conversation'
         });
 
         await newReport.save();

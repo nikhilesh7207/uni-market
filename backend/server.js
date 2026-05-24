@@ -12,28 +12,54 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
+
+const allowedOrigins = [
+    process.env.CLIENT_URL,
+    "http://localhost:5173",
+    "http://localhost:5000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5000"
+].filter(Boolean);
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1 || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+};
+
 const io = new Server(server, {
-    cors: {
-        origin: process.env.CLIENT_URL || "http://localhost:5173", // Frontend URL
-        methods: ["GET", "POST"],
-        credentials: true
-    }
+    cors: corsOptions
 });
 
 // Middleware
-app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
-    credentials: true
-}));
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Local static uploads folder mapping (you can leave this for retro-compatibility if you have existing files)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Database Connection
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB Connected'))
-    .catch(err => console.log(err));
+const connectDB = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log(`MongoDB Connected to: ${process.env.MONGO_URI}`);
+    } catch (err) {
+        console.error('Failed to connect to Atlas MongoDB, falling back to local database...');
+        console.error(err.message);
+        try {
+            await mongoose.connect('mongodb://127.0.0.1:27017/unimarket');
+            console.log('MongoDB Connected to Local fallback (mongodb://127.0.0.1:27017/unimarket)');
+        } catch (localErr) {
+            console.error('Failed to connect to local MongoDB as well:', localErr.message);
+        }
+    }
+};
+connectDB();
 
 // Socket.io Middleware for Authentication
 io.use(async (socket, next) => {

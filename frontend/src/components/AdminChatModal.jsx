@@ -103,7 +103,7 @@ const AdminChatModal = ({ chatId, onClose }) => {
                                                     {msg.sender?.name || 'Unknown User'}
                                                 </span>
                                                 <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                                                    {format(new Date(msg.createdAt), 'MMM dd, h:mm a')}
+                                                    {msg.timestamp ? format(new Date(msg.timestamp), 'MMM dd, h:mm a') : 'Unknown Time'}
                                                 </span>
                                             </div>
                                         )}

@@ -55,4 +55,8 @@ const ChatSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+ChatSchema.index({ participants: 1 });
+ChatSchema.index({ product: 1 });
+ChatSchema.index({ updatedAt: -1 });
+
 module.exports = mongoose.model('Chat', ChatSchema);
