@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const multer = require('multer');
@@ -262,6 +263,10 @@ router.get('/temp-create-admin', async (req, res) => {
     const { secret } = req.query;
     if (secret !== 'unimarketSecureTempSecret2026') {
         return res.status(401).json({ msg: 'Unauthorized' });
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+        return res.status(500).send('Database is not connected! Current readyState: ' + mongoose.connection.readyState + ' (0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting)');
     }
 
     try {
